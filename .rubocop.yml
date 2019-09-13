@@ -1,0 +1,45 @@
+require: rubocop-rspec
+AllCops:
+  RunExtraRailsCops: true
+  TargetRubyVersion: 2.5.3
+  Exclude:
+    - '**/schema.rb'
+
+Lint/UselessAssignment:
+  Enabled: false
+Lint/AssignmentInCondition:
+  Enabled: false
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context', 'shared_context', 'api_operation']
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*_spec.rb'
+    - 'spec/**/*_contexts.rb'
+
+Metrics/LineLength:
+  Max: 100
+Performance/TimesMap:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Enabled: false
+Style/EmptyLinesAroundBody:
+  Enabled: false
+Style/TrailingBlankLines:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
+Style/SymbolArray:
+  Enabled: false
+# Single Quotes
+StringLiterals:
+  Enabled: true
+
+RSpec/FilePath:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+Rspec/NamedSubject:
+  Enabled: false
+Rspec/ContextWording:
+  Enabled: false

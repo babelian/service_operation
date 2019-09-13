@@ -1,0 +1,23 @@
+# .semaphore/semaphore.yml
+# https://docs.semaphoreci.com/article/140-using-docker-compose-in-ci
+version: v1.0
+name: ServiceOperation
+agent:
+  machine:
+    type: e1-standard-1
+    os_image: ubuntu1804
+
+blocks:
+  - name: ServiceOperation
+    skip:
+      when: "branch != 'master'"
+    task:
+      prologue:
+        commands:
+          - checkout
+          - export $(grep -v '^#' /home/semaphore/.env | xargs -d '\n')
+      jobs:
+        - name: service_operation
+          commands:
+            - docker-compose --file gems/service_operation/docker-compose.yml build
+            - docker-compose --file gems/service_operation/docker-compose.yml run app rake spec
