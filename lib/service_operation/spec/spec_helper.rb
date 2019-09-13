@@ -3,7 +3,6 @@
 require 'simplecov'
 SimpleCov.start
 
-require 'service_operation/spec/support/action_contexts'
 require 'service_operation/spec/support/operation_contexts'
 
 # Stub ServiceNotifications
@@ -39,6 +38,5 @@ end
 
 RSpec.configure do |config|
   config.include StubServiceNotifications
-  config.include_context 'action', type: :action
   config.include_context 'operation', type: :operation
 end
