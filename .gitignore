@@ -1,2 +1,2 @@
-coverage*
-doc*
+coverage/*
+doc/*

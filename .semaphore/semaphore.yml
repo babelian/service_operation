@@ -18,7 +18,5 @@ blocks:
       jobs:
         - name: rspec
           commands:
-            - pwd
-            - ls
-            - docker-compose --file docker-compose.yml build
-            - docker-compose --file docker-compose.yml run app rake spec
+            - docker-compose build
+            - docker-compose run app rake spec
