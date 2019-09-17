@@ -13,5 +13,5 @@ module ServiceOperation
   autoload :Params, 'service_operation/params'
   autoload :RackMountable, 'service_operation/rack_mountable'
   autoload :Validations, 'service_operation/validations'
-  autoload :VERSION,  'service_operation/version'
+  autoload :VERSION, 'service_operation/version'
 end
