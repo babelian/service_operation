@@ -6,6 +6,8 @@ module ServiceOperation
     class TestBase
       include Params
 
+      # Shims for other module features:
+
       def self.before(*args)
         @before ||= []
         @before += args
@@ -15,11 +17,17 @@ module ServiceOperation
         @after ||= []
         @after += args
       end
+
+      def context
+        @context ||= Context.new
+      end
+
+      def errors
+        @errors ||= Errors.new
+      end
     end
 
     class TestOperation < TestBase
-      include Params
-
       params do
         param1 String   # test de-duping
         param1 Integer  # typed but no coercion
@@ -40,14 +48,6 @@ module ServiceOperation
 
       output do
         output1 optional: true
-      end
-
-      def context
-        @context ||= Context.new
-      end
-
-      def errors
-        @errors ||= Errors.new
       end
 
       private
@@ -94,7 +94,7 @@ module ServiceOperation
       end
 
       it 'does not allow duplicates' do
-        attrs = TestOperation.attributes.select { |a| a.name == :return1 }
+        attrs = subject.attributes.select { |a| a.name == :return1 }
         expect(attrs.length).to eq 1
         expect(attrs.first.validator).to eq Integer
       end
@@ -140,6 +140,41 @@ module ServiceOperation
     #
 
     it 'require_at_least_one_of'
+
+    describe '#validated_context' do
+      let(:subject) do
+        Class.new(TestBase) do
+          params do
+            param1 :integer
+          end
+
+          returns do
+            return1 :string
+          end
+
+          def call
+            raise 'stubbing failed'
+          end
+
+          private
+
+          def return1
+            raise 'should not be caled'
+          end
+        end
+      end
+
+      let(:context) do
+        instance.validated_context
+      end
+
+      it 'runs attribute valdiations and validates context without running other hooks or #call' do
+        instance.context[:param1] = '1'
+        expect(context.param1).to eq(1)
+        expect(context.errors[:return1]).to eq ["can't be blank"]
+        expect(context).to be_failure
+      end
+    end
 
     describe '#validate_returns' do
       let(:errors) { instance.errors }

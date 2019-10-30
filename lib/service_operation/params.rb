@@ -76,6 +76,16 @@ module ServiceOperation
 
     # InstanceMethods
     module InstanceMethods
+      # For RSpect use with {ServiceOperation::Spec::Support::StubHelpers}
+      def validated_context
+        validate_attributes(self.class.params, coerce: true, send: false)
+        validate_attributes(self.class.returns, send: false)
+        context.fail! if (context.errors || []).any?
+        context
+      rescue ServiceOperation::Failure
+        context
+      end
+
       private
 
       # coerces param and adds an error if it fails to validate type
@@ -87,9 +97,9 @@ module ServiceOperation
         validate_attributes(self.class.returns)
       end
 
-      def validate_attributes(attributes, coerce: false)
+      def validate_attributes(attributes, coerce: false, send: true)
         attributes.each do |attr|
-          value = attr.optional ? context[attr.name] : send(attr.name)
+          value = attr.optional || !send ? context[attr.name] : send(attr.name)
 
           context[attr.name] = value = attr.from(value, self.class) if coerce
 
