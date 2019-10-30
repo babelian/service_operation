@@ -14,6 +14,8 @@ Gem::Specification.new do |s|
   s.files = Dir.glob('{lib}/**/*')
   s.require_paths = %w[lib]
 
+  s.add_development_dependency 'guard'
+  s.add_development_dependency 'guard-rspec'
   s.add_development_dependency 'pry-byebug', '~> 3.7.0'
   s.add_development_dependency 'rspec', '3.7.0'
   s.add_development_dependency 'simplecov', '~> 0.17.0'
