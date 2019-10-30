@@ -86,7 +86,7 @@ module ServiceOperation
     end
 
     def service_notifications_url
-      ENV['SERVICE_NOTIFICATIONS_URL'] || raise("ENV['SERVICE_NOTIFICATIONS_URL'] not defined"
+      ENV['SERVICE_NOTIFICATIONS_URL'] || raise("ENV['SERVICE_NOTIFICATIONS_URL'] not defined")
     end
   end
 end
