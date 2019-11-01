@@ -13,8 +13,6 @@ module ServiceOperation
         include Hooks
         include Params
         include Validations
-
-        attr_reader :context
       end
     end
 
@@ -50,6 +48,15 @@ module ServiceOperation
 
     def call
       nil
+    end
+
+    def context(attribute_name = nil, &block)
+      if block_given?
+        attribute_name ||= caller(1..1).first[/`([^']*)'$/, 1]
+        @context.fetch(attribute_name, &block)
+      else
+        @context
+      end
     end
 
     def run

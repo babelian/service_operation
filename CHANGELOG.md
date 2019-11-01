@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.3.0] - 2019-11-01
+
+### Feature
+- Allow use of `context { 'value' }` rather than `context.fetch { 'value' }`
+
 ## [1.2.2] - 2019-11-01
 
 ### BugFix

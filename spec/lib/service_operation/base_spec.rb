@@ -103,6 +103,35 @@ module ServiceOperation
       end
     end
 
+    describe '#context' do
+      let(:operation) do
+        operation = Class.new do
+          include Base
+
+          def fetched
+            context { 'value' } # rubocop:disable all
+          end
+        end
+      end
+
+      it 'returns @context' do
+        expect(instance.context).to be_a Context
+        expect(instance.context).to eq instance.instance_variable_get('@context')
+      end
+
+      it 'caches when an attribute name and block are passed' do
+        expect(
+          instance.context(:attribute_name) { 1 }
+        ).to eq(1)
+        expect(instance.context.attribute_name).to eq(1)
+      end
+
+      it 'can infer attribute name from enclosing method' do
+        expect(instance.fetched).to eq('value')
+        expect(instance.context.fetched).to eq('value')
+      end
+    end
+
     describe '#run' do
       it 'runs the operation' do
         allow(instance).to receive(:run!).once.with(no_args)
