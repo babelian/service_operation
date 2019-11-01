@@ -22,50 +22,102 @@ RSpec.describe ServiceOperation::Spec::Support::StubHelpers do
     end
   end
 
+  let(:input) { { param1: 1 } }
+  let(:output) { { return1: '1' } }
+
   let(:actual_output) do
     operation.call(input)
+  end
+
+  let(:actual_output!) do
+    operation.call!(input)
   end
 
   let(:expected_output) do
     context = ServiceOperation::Context.new input.merge(output)
     context.fail! if context.errors
     context
-  rescue ServiceOperation::Failure
+  rescue ServiceOperation::Failure => e
     context
   end
 
-  context 'success' do
-    let(:input) { { param1: 1 } }
-    let(:output) { { return1: '1' } }
+  #
+  # #allow_operation
+  #
 
-    it 'allow_operation(operation, input) outputs a successful Context' do
-      allow_operation(operation, input, output)
+  describe '#allow_operation' do
+    context 'success' do
+      it '(operation, input) outputs a successful Context' do
+        allow_operation(operation, input, output)
 
-      expect(actual_output).to eq expected_output
-      expect(actual_output).to be_success
-      expect(operation).to have_received(:call).with(input)
+        expect(actual_output).to eq expected_output
+        expect(actual_output).to be_success
+        expect(operation).to have_received(:call).with(input)
+      end
+
+      it '(operation, input) { |args| output } works' do
+        allow_operation(operation, input) do |args|
+          expect(args).to eq(input)
+          output
+        end
+        expect(actual_output).to eq expected_output
+      end
     end
 
-    it 'allow_operation(operation, input) { |args| output } works' do
-      allow_operation(operation, input) do |args|
-        expect(args).to eq(input)
-        output
+    context 'failure' do
+      let(:input) { { param1: nil } }
+      let(:output) { { errors: { param1: ["can't be blank"] } } }
+
+      it '(operation, incomplete_input, output_with_errors) outputs a failed Context' do
+        allow_operation(operation, input, output)
+
+        expect(actual_output).to eq expected_output
+        expect(actual_output).to be_failure
+
+        expect(operation).to have_received(:call).with(input)
       end
-      expect(actual_output).to eq expected_output
     end
   end
 
-  context 'failure' do
-    let(:input) { { param1: nil } }
-    let(:output) { { errors: { param1: ["can't be blank"] } } }
+  describe '#allow_operation!' do
+    let(:actual_output) do
+      operation.call!(input)
+    end
 
-    it 'outputs a failed Context' do
-      allow_operation(operation, input, output)
+    it 'uses receive(:call!) instead of receive(:call)' do
+      allow(operation).to receive(:call) # make sure its not called
+
+      allow_operation!(operation, input, output)
 
       expect(actual_output).to eq expected_output
-      expect(actual_output).to be_failure
+      expect(operation).to have_received(:call!)
 
-      expect(operation).to have_received(:call).with(input)
+      expect(operation).not_to have_received(:call) # double check
+    end
+  end
+
+  #
+  # #expect_operation
+  #
+
+  describe '#expect_operation' do
+    it '(operation, input)' do
+      allow(operation).to receive(:call).with(input) { output }
+      actual_output
+      expect_operation(operation, input)
+    end
+  end
+
+  describe '#expect_operation!' do
+    it '(operation, input)' do
+      allow(operation).to receive(:call)
+
+      allow(operation).to receive(:call!).with(input) { output }
+
+      actual_output!
+      expect_operation!(operation, input)
+
+      expect(operation).not_to have_received(:call)
     end
   end
 end
