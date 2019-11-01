@@ -33,6 +33,10 @@ RSpec.describe ServiceOperation::Spec::Support::StubHelpers do
     operation.call!(input)
   end
 
+  let(:expected_input) do
+    ServiceOperation::Context.new input
+  end
+
   let(:expected_output) do
     context = ServiceOperation::Context.new input.merge(output)
     context.fail! if context.errors
@@ -47,7 +51,7 @@ RSpec.describe ServiceOperation::Spec::Support::StubHelpers do
 
   describe '#allow_operation' do
     context 'success' do
-      it '(operation, input) outputs a successful Context' do
+      it '(operation, input, output) outputs a successful Context' do
         allow_operation(operation, input, output)
 
         expect(actual_output).to eq expected_output
@@ -79,12 +83,12 @@ RSpec.describe ServiceOperation::Spec::Support::StubHelpers do
     end
   end
 
-  describe '#allow_operation!' do
+  describe '#allow_operation! uses receive(:call!) instead of receive(:call)' do
     let(:actual_output) do
       operation.call!(input)
     end
 
-    it 'uses receive(:call!) instead of receive(:call)' do
+    it '(operation, input, output) works' do
       allow(operation).to receive(:call) # make sure its not called
 
       allow_operation!(operation, input, output)
@@ -93,6 +97,14 @@ RSpec.describe ServiceOperation::Spec::Support::StubHelpers do
       expect(operation).to have_received(:call!)
 
       expect(operation).not_to have_received(:call) # double check
+    end
+
+    it '(operation, input) { |args| output } works' do
+      allow_operation!(operation, input) do |args|
+        expect(args).to eq(input)
+        output
+      end
+      expect(actual_output).to eq expected_output
     end
   end
 
@@ -108,7 +120,7 @@ RSpec.describe ServiceOperation::Spec::Support::StubHelpers do
     end
   end
 
-  describe '#expect_operation!' do
+  describe '#expect_operation! uses receive(:call!) instead of receive(:call)' do
     it '(operation, input)' do
       allow(operation).to receive(:call)
 

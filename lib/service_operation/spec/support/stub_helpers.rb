@@ -15,9 +15,8 @@ module ServiceOperation
           end
         end
 
-        def allow_operation!(*args)
-          args << :call!
-          allow_operation(*args)
+        def allow_operation!(operation_class, input = nil, output = nil)
+          allow_operation(operation_class, input, output, :call!) { yield(input) }
         end
 
         def expect_operation(operation_class, input = nil, receive_method = :call)
@@ -27,9 +26,8 @@ module ServiceOperation
           expect(operation_class).to expectation
         end
 
-        def expect_operation!(*args)
-          args << :call!
-          expect_operation(*args)
+        def expect_operation!(operation_class, input = nil)
+          expect_operation(operation_class, input, :call!)
         end
       end
     end
